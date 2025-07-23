@@ -7,6 +7,7 @@ import {
   TextInput,
   SafeAreaView,
 } from 'react-native';
+import {COLORS} from '../../constants';
 
 interface SignupScreenProps {
   navigation: any;
@@ -84,7 +85,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.BACKGROUND_PRIMARY,
   },
   content: {
     flex: 1,
@@ -96,35 +97,35 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 10,
-    color: '#333',
+    color: COLORS.TEXT_PRIMARY,
   },
   subtitle: {
     fontSize: 16,
     textAlign: 'center',
     marginBottom: 30,
-    color: '#666',
+    color: COLORS.TEXT_SECONDARY,
   },
   form: {
     marginTop: 20,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: COLORS.BORDER_LIGHT,
     borderRadius: 8,
     padding: 15,
     fontSize: 16,
     marginBottom: 15,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: COLORS.BACKGROUND_SECONDARY,
   },
   button: {
-    backgroundColor: '#28a745',
+    backgroundColor: COLORS.SUCCESS,
     borderRadius: 8,
     padding: 15,
     alignItems: 'center',
     marginTop: 10,
   },
   buttonText: {
-    color: '#fff',
+    color: COLORS.TEXT_WHITE,
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -133,7 +134,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   linkText: {
-    color: '#007bff',
+    color: COLORS.ACCENT,
     fontSize: 14,
   },
 });
