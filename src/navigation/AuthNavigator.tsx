@@ -1,10 +1,12 @@
 import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {LoginScreen, SignupScreen} from '../screens/auth';
+import {LoginScreen, SignupScreen, ProfileCreation, ProfileCreateSuccess} from '../screens/auth';
 
 export type AuthStackParamList = {
   Login: undefined;
   Signup: undefined;
+  ProfileCreation: undefined;
+  ProfileCreateSuccess: undefined;
 };
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
@@ -19,6 +21,8 @@ const AuthNavigator: React.FC = () => {
       }}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Signup" component={SignupScreen} />
+      <Stack.Screen name="ProfileCreation" component={ProfileCreation} />
+      <Stack.Screen name="ProfileCreateSuccess" component={ProfileCreateSuccess} />
     </Stack.Navigator>
   );
 };

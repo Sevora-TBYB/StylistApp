@@ -2,12 +2,18 @@ import React from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   TouchableOpacity,
-  TextInput,
-  SafeAreaView,
+  ScrollView,
+  Image,
+  StatusBar,
 } from 'react-native';
-import {COLORS} from '../../constants';
+import {COLORS, getColors, SIZES} from '../../constants';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { globalStyles } from '../../styles';
+import { useSimpleDarkMode } from '../../hooks';
+import { loginScreenStyles } from './LoginScreen.styles';
+import { CustomTextInput, GradientButton } from '../../components';
 
 interface LoginScreenProps {
   navigation: any;
@@ -16,110 +22,148 @@ interface LoginScreenProps {
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [currentSlide, setCurrentSlide] = React.useState(0);
+  const {isDarkMode, toggleDarkMode} = useSimpleDarkMode();
+  
+  // Get colors based on current theme
+  const colors = getColors(isDarkMode);
+
+  const sliderData = [
+    {
+      id: 1,
+      image: require('../../assets/images/png/home3.png'),
+      title: 'Visit Store',
+      description: 'Register to enjoy try before you buy experience',
+    },
+    {
+      id: 2,
+      image: require('../../assets/images/png/home2.png'),
+      title: 'Pickup Trial Items',
+      description: 'Register to enjoy try before you buy experience',
+    },
+    {
+      id: 3,
+      image: require('../../assets/images/png/home.png'),
+      title: 'Start Trial',
+      description: 'Register to enjoy try before you buy experience.',
+    },
+  ];
+
+  const handleScroll = (event: any) => {
+    const slideSize = SIZES.SCREEN_WIDTH;
+    const currentSlideIndex = Math.round(event.nativeEvent.contentOffset.x / slideSize);
+    setCurrentSlide(currentSlideIndex);
+  };
 
   const handleLogin = () => {
-    // Navigate to app screens after login
-    navigation.navigate('App');
+    // Navigate to profile creation screen after login
+    navigation.navigate('ProfileCreation');
   };
 
   const handleNavigateToSignup = () => {
     navigation.navigate('Signup');
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to your account</Text>
+  const renderSlider = () => {
+    return (
+      <View style={loginScreenStyles.sliderContainer}>
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          style={loginScreenStyles.slider}>
+          {sliderData.map((item, index) => (
+            <View key={item.id} style={loginScreenStyles.slide}>
+              <View style={loginScreenStyles.imageContainer}>
+                <Image source={item.image} style={loginScreenStyles.sliderImage} resizeMode="cover" />
+              </View>
+              <View style={loginScreenStyles.textContainer}>
+                <Text style={[loginScreenStyles.slideTitle, {color: colors.TEXT_WHITE}]}>
+                  {item.title}
+                </Text>
+                <Text style={[loginScreenStyles.slideDescription, {color: colors.TEXT_WHITE}]}>
+                  {item.description}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </ScrollView>
         
-        <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-          
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Login</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={handleNavigateToSignup}>
-            <Text style={styles.linkText}>Don't have an account? Sign up</Text>
-          </TouchableOpacity>
+        {/* Pagination dots */}
+        <View style={loginScreenStyles.pagination}>
+          {sliderData.map((_, index) => (
+            <View
+              key={index}
+              style={[
+                loginScreenStyles.paginationDot,
+                currentSlide === index && loginScreenStyles.paginationDotActive,
+              ]}
+            />
+          ))}
         </View>
       </View>
+    );
+  };
+
+  return (
+    <SafeAreaView style={globalStyles.container}>
+      <StatusBar 
+        backgroundColor="white" 
+        barStyle="light-content" 
+        translucent={false}
+      />
+      <KeyboardAwareScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1 }}
+        enableOnAndroid={true}
+        enableAutomaticScroll={true}
+        keyboardOpeningTime={0}
+        showsVerticalScrollIndicator={false}
+        extraScrollHeight={20}
+        resetScrollToCoords={{ x: 0, y: 0 }}
+        scrollEnabled={true}
+        keyboardShouldPersistTaps="handled"
+      >
+        {renderSlider()}
+        
+        <View style={[loginScreenStyles.content, {backgroundColor: colors.TEXT_WHITE}]}>
+          <Text style={[loginScreenStyles.title, {color: colors.TEXT_PRIMARY}]}>Get Started</Text>
+          <Text style={[loginScreenStyles.subtitle, {color: colors.TEXT_SECONDARY}]}>
+            Enter the email address & password that has been given by the SEVORA's team.
+          </Text>
+          
+          <View style={loginScreenStyles.form}>
+            <CustomTextInput
+              label="Email"
+              placeholder="Enter your email"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              isDarkMode={isDarkMode}
+            />
+            
+            <CustomTextInput
+              label="Password"
+              placeholder="Enter your password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              isDarkMode={isDarkMode}
+            />
+            
+            <GradientButton
+              title="Login"
+              onPress={handleLogin}
+              colors={['#121212', '#666666']}
+            />
+          </View>
+        </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BACKGROUND_PRIMARY,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 10,
-    color: COLORS.TEXT_PRIMARY,
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 30,
-    color: COLORS.TEXT_SECONDARY,
-  },
-  form: {
-    marginTop: 20,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: COLORS.BORDER_LIGHT,
-    borderRadius: 8,
-    padding: 15,
-    fontSize: 16,
-    marginBottom: 15,
-    backgroundColor: COLORS.BACKGROUND_SECONDARY,
-  },
-  button: {
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 8,
-    padding: 15,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: COLORS.TEXT_WHITE,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  linkButton: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  linkText: {
-    color: COLORS.ACCENT,
-    fontSize: 14,
-  },
-});
 
 export default LoginScreen;
