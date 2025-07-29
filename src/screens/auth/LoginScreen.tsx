@@ -6,63 +6,38 @@ import {
   ScrollView,
   Image,
   StatusBar,
+  Platform,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {COLORS, getColors, SIZES} from '../../constants';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { globalStyles } from '../../styles';
-import { useSimpleDarkMode } from '../../hooks';
+import { useSimpleDarkMode, useLoginScreen } from '../../hooks';
 import { loginScreenStyles } from './LoginScreen.styles';
 import { CustomTextInput, GradientButton } from '../../components';
+import { moderateScale } from '../../utils/Metrices';
 
 interface LoginScreenProps {
   navigation: any;
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [currentSlide, setCurrentSlide] = React.useState(0);
   const {isDarkMode, toggleDarkMode} = useSimpleDarkMode();
+  const {
+    email,
+    password,
+    currentSlide,
+    sliderData,
+    setEmail,
+    setPassword,
+    handleScroll,
+    handleLogin,
+    handleNavigateToSignup,
+  } = useLoginScreen({ navigation });
   
   // Get colors based on current theme
   const colors = getColors(isDarkMode);
-
-  const sliderData = [
-    {
-      id: 1,
-      image: require('../../assets/images/png/home3.png'),
-      title: 'Visit Store',
-      description: 'Register to enjoy try before you buy experience',
-    },
-    {
-      id: 2,
-      image: require('../../assets/images/png/home2.png'),
-      title: 'Pickup Trial Items',
-      description: 'Register to enjoy try before you buy experience',
-    },
-    {
-      id: 3,
-      image: require('../../assets/images/png/home.png'),
-      title: 'Start Trial',
-      description: 'Register to enjoy try before you buy experience.',
-    },
-  ];
-
-  const handleScroll = (event: any) => {
-    const slideSize = SIZES.SCREEN_WIDTH;
-    const currentSlideIndex = Math.round(event.nativeEvent.contentOffset.x / slideSize);
-    setCurrentSlide(currentSlideIndex);
-  };
-
-  const handleLogin = () => {
-    // Navigate to profile creation screen after login
-    navigation.navigate('ProfileCreation');
-  };
-
-  const handleNavigateToSignup = () => {
-    navigation.navigate('Signup');
-  };
 
   const renderSlider = () => {
     return (
@@ -114,21 +89,23 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
         barStyle="light-content" 
         translucent={false}
       />
-      <KeyboardAwareScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ flexGrow: 1 }}
-        enableOnAndroid={true}
-        enableAutomaticScroll={true}
-        keyboardOpeningTime={0}
-        showsVerticalScrollIndicator={false}
-        extraScrollHeight={20}
-        resetScrollToCoords={{ x: 0, y: 0 }}
-        scrollEnabled={true}
-        keyboardShouldPersistTaps="handled"
-      >
+        <KeyboardAwareScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1 }}
+          enableOnAndroid={true}
+          enableAutomaticScroll={true}
+          keyboardOpeningTime={250}
+          showsVerticalScrollIndicator={false}
+          extraScrollHeight={150}
+          resetScrollToCoords={{ x: 0, y: 0 }}
+          scrollEnabled={true}
+          keyboardShouldPersistTaps="handled"
+          extraHeight={150}
+          viewIsInsideTabBar={false}
+        >
         {renderSlider()}
         
-        <View style={[loginScreenStyles.content, {backgroundColor: colors.TEXT_WHITE}]}>
+        <View style={[loginScreenStyles.content, {backgroundColor: colors.TEXT_WHITE, paddingBottom: 120}]}>
           <Text style={[loginScreenStyles.title, {color: colors.TEXT_PRIMARY}]}>Get Started</Text>
           <Text style={[loginScreenStyles.subtitle, {color: colors.TEXT_SECONDARY}]}>
             Enter the email address & password that has been given by the SEVORA's team.
@@ -150,8 +127,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
               placeholder="Enter your password"
               value={password}
               onChangeText={setPassword}
-              secureTextEntry
+              isPassword={true}
               isDarkMode={isDarkMode}
+              containerStyle={{ marginBottom: moderateScale(30) }}
             />
             
             <GradientButton
@@ -161,7 +139,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
             />
           </View>
         </View>
-      </KeyboardAwareScrollView>
+        </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 };

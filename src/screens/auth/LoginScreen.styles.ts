@@ -65,7 +65,7 @@ export const loginScreenStyles = StyleSheet.create({
   
   // Form Styles
   content: {
-    flex: 1,
+    // flex: 1,
     paddingHorizontal: SIZES.PADDING_LARGE,
     borderTopRightRadius: SIZES.BORDER_RADIUS_ROUND,
     borderTopLeftRadius: SIZES.BORDER_RADIUS_ROUND,

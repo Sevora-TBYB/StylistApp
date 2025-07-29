@@ -1,25 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   Image,
-  Alert,
   StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import {
-  launchImageLibrary,
-  MediaType,
-  PhotoQuality,
-  ImagePickerResponse,
-} from 'react-native-image-picker';
 import { OtpInput } from 'react-native-otp-entry';
 import { getColors, SIZES } from '../../constants';
 import { globalStyles } from '../../styles';
-import { useSimpleDarkMode } from '../../hooks';
-import { CustomTextInput, GradientButton, AnimatedBottomSheet } from '../../components';
+import { useSimpleDarkMode, useProfileCreation } from '../../hooks';
+import { CustomTextInput, CustomDropdown, GradientButton, AnimatedBottomSheet } from '../../components';
 import { profileCreationStyles } from './ProfileCreation.styles';
 
 interface ProfileCreationProps {
@@ -27,67 +20,43 @@ interface ProfileCreationProps {
 }
 
 const ProfileCreation: React.FC<ProfileCreationProps> = ({ navigation }) => {
-  const [fullName, setFullName] = useState('');
-  const [emailAddress, setEmailAddress] = useState('');
-  const [mobileNumber, setMobileNumber] = useState('');
-  const [education, setEducation] = useState('');
-  const [workExperience, setWorkExperience] = useState('');
-  const [yearsExperience, setYearsExperience] = useState('');
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [showBottomSheet, setShowBottomSheet] = useState(false);
-  const [showOtpBottomSheet, setShowOtpBottomSheet] = useState(false);
-  const [otp, setOtp] = useState('');
-  
   const { isDarkMode } = useSimpleDarkMode();
   const colors = getColors(isDarkMode);
-
-  const handleImageUpload = () => {
-    const options = {
-      mediaType: 'photo' as MediaType,
-      includeBase64: false,
-      maxHeight: 400,
-      maxWidth: 400,
-      quality: 0.8 as PhotoQuality,
-    };
-
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel || response.errorMessage) {
-        return;
-      }
-      
-      if (response.assets && response.assets[0]) {
-        setProfileImage(response.assets[0].uri || null);
-      }
-    });
-  };
-
-  const handleContinue = () => {
-    // Validate required fields
-    if (!fullName || !emailAddress || !mobileNumber) {
-      Alert.alert('Error', 'Please fill in all required fields');
-      return;
-    }
+  
+  const {
+    // Dropdown options
+    educationOptions,
+    workExperienceOptions,
+    yearsExperienceOptions,
     
-    // Show OTP verification bottom sheet
-    setShowOtpBottomSheet(true);
-  };
-
-  const handleOtpVerification = () => {
-    if (otp.length !== 6) {
-      Alert.alert('Error', 'Please enter a valid 6-digit OTP');
-      return;
-    }
+    // State
+    fullName,
+    emailAddress,
+    mobileNumber,
+    education,
+    workExperience,
+    yearsExperience,
+    profileImage,
+    showOtpBottomSheet,
+    otp,
     
-    // Close OTP bottom sheet and navigate to success screen
-    setShowOtpBottomSheet(false);
-    navigation.navigate('ProfileCreateSuccess');
-  };
-
-  const handleResendOtp = () => {
-    // Clear current OTP
-    setOtp('');
-    Alert.alert('Success', 'OTP has been resent to your mobile number');
-  };
+    // State setters
+    setFullName,
+    setEmailAddress,
+    setMobileNumber,
+    setEducation,
+    setWorkExperience,
+    setYearsExperience,
+    setShowOtpBottomSheet,
+    setOtp,
+    
+    // Methods
+    handleImageUpload,
+    handleImageRemove,
+    handleContinue,
+    handleOtpVerification,
+    handleResendOtp,
+  } = useProfileCreation({ navigation });
 
   return (
     <SafeAreaView style={globalStyles.container}>
@@ -139,16 +108,17 @@ const ProfileCreation: React.FC<ProfileCreationProps> = ({ navigation }) => {
             
             <TouchableOpacity 
               style={[profileCreationStyles.uploadButton, { borderColor: colors.PRIMARY }]}
-              onPress={() => setShowBottomSheet(true)}
+              onPress={handleImageUpload}
+              onLongPress={handleImageRemove}
             >
               <Text style={[profileCreationStyles.uploadButtonText, { color: colors.PRIMARY }]}>
-                Upload Image
+                {profileImage ? 'Change Image' : 'Upload Image'}
               </Text>
             </TouchableOpacity>
           </View>
 
           {/* Form Section */}
-          <View style={profileCreationStyles.formSection}>
+          <View style={[profileCreationStyles.formSection, { paddingBottom: 100 }]}>
             <CustomTextInput
               label="Full Name *"
               placeholder="Enter your full name"
@@ -180,34 +150,34 @@ const ProfileCreation: React.FC<ProfileCreationProps> = ({ navigation }) => {
               inputStyle={{ backgroundColor:"#F6F6F6" , color: colors.TEXT_PRIMARY }}
             />
 
-            <CustomTextInput
+            <CustomDropdown
               label="Highest Education Qualification"
-              placeholder="Enter your education qualification"
+              placeholder="Select your education qualification"
+              options={educationOptions}
               value={education}
-              onChangeText={setEducation}
+              onSelect={setEducation}
               isDarkMode={isDarkMode}
-              inputStyle={{ backgroundColor:"#F6F6F6" , color: colors.TEXT_PRIMARY }}
+              containerStyle={{ zIndex: 3000 }}
             />
 
-            <CustomTextInput
+            <CustomDropdown
               label="Where you have worked before?"
-              placeholder="Enter your previous work experience"
+              placeholder="Select your work experience"
+              options={workExperienceOptions}
               value={workExperience}
-              onChangeText={setWorkExperience}
-              multiline={true}
-              numberOfLines={3}
+              onSelect={setWorkExperience}
               isDarkMode={isDarkMode}
-              inputStyle={{ backgroundColor:"#F6F6F6" , color: colors.TEXT_PRIMARY }}
+              containerStyle={{ zIndex: 2000 }}
             />
 
-            <CustomTextInput
+            <CustomDropdown
               label="How many years of experience do you have?"
-              placeholder="Enter years of experience"
+              placeholder="Select years of experience"
+              options={yearsExperienceOptions}
               value={yearsExperience}
-              onChangeText={setYearsExperience}
-              keyboardType="numeric"
+              onSelect={setYearsExperience}
               isDarkMode={isDarkMode}
-              inputStyle={{ backgroundColor:"#F6F6F6" , color: colors.TEXT_PRIMARY }}
+              containerStyle={{ zIndex: 1000 }}
             />
 
             {/* Continue Button */}
@@ -222,113 +192,44 @@ const ProfileCreation: React.FC<ProfileCreationProps> = ({ navigation }) => {
         </View>
       </KeyboardAwareScrollView>
 
-      {/* Image Upload Bottom Sheet */}
-      <AnimatedBottomSheet
-        visible={showBottomSheet}
-        onClose={() => setShowBottomSheet(false)}
-        title="Upload Profile Image"
-        height={300}
-      >
-        <View style={{ flex: 1, paddingTop: 20 }}>
-          <TouchableOpacity
-            style={{
-              padding: 16,
-              backgroundColor: colors.BACKGROUND_SECONDARY,
-              borderRadius: 12,
-              marginBottom: 12,
-              alignItems: 'center',
-            }}
-            onPress={() => {
-              handleImageUpload();
-              setShowBottomSheet(false);
-            }}
-          >
-            <Text style={{ fontSize: 16, fontWeight: '500', color: colors.TEXT_PRIMARY }}>
-              📷 Choose from Gallery
-            </Text>
-            <Text style={{ fontSize: 14, color: colors.TEXT_SECONDARY, marginTop: 4 }}>
-              Select an image from your photo library
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={{
-              padding: 16,
-              backgroundColor: colors.BACKGROUND_SECONDARY,
-              borderRadius: 12,
-              marginBottom: 12,
-              alignItems: 'center',
-            }}
-            onPress={() => {
-              // You can add camera functionality here later
-              setShowBottomSheet(false);
-            }}
-          >
-            <Text style={{ fontSize: 16, fontWeight: '500', color: colors.TEXT_PRIMARY }}>
-              📸 Take Photo
-            </Text>
-            <Text style={{ fontSize: 14, color: colors.TEXT_SECONDARY, marginTop: 4 }}>
-              Capture a new photo with your camera
-            </Text>
-          </TouchableOpacity>
-
-          {profileImage && (
-            <TouchableOpacity
-              style={{
-                padding: 16,
-                backgroundColor: colors.ERROR + '20',
-                borderRadius: 12,
-                alignItems: 'center',
-              }}
-              onPress={() => {
-                setProfileImage(null);
-                setShowBottomSheet(false);
-              }}
-            >
-              <Text style={{ fontSize: 16, fontWeight: '500', color: colors.ERROR }}>
-                🗑️ Remove Image
-              </Text>
-              <Text style={{ fontSize: 14, color: colors.TEXT_SECONDARY, marginTop: 4 }}>
-                Remove the current profile image
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </AnimatedBottomSheet>
-
       {/* OTP Verification Bottom Sheet */}
       <AnimatedBottomSheet
         visible={showOtpBottomSheet}
         onClose={() => setShowOtpBottomSheet(false)}
-        title="Mobile Number Verification"
-        height={450}
+        title=""
+        height={350}
+        keyboardVerticalOffset={30}
       >
-        <KeyboardAwareScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ flexGrow: 1, paddingTop: 20 }}
-          enableOnAndroid={true}
-          enableAutomaticScroll={true}
-          keyboardOpeningTime={0}
-          showsVerticalScrollIndicator={false}
-          extraScrollHeight={20}
-          resetScrollToCoords={{ x: 0, y: 0 }}
-          scrollEnabled={true}
-          keyboardShouldPersistTaps="handled"
-        >
+    
+    <Text style={{ 
+            fontSize: 22, 
+            color: colors.PRIMARY, 
+            // textAlign: 'center',
+            fontWeight: '600',
+            marginBottom: 5,
+            // paddingHorizontal: 10
+          }}>
+            Mobile Number Verification
+          </Text>
           {/* Description */}
           <Text style={{ 
-            fontSize: 16, 
+            fontSize: 12, 
             color: colors.TEXT_SECONDARY, 
-            textAlign: 'center',
-            marginBottom: 30,
-            lineHeight: 22,
-            paddingHorizontal: 10
+            // textAlign: 'center',
+            marginBottom: 20,
+            // paddingHorizontal: 10
           }}>
             OTP has been sent to {mobileNumber}
           </Text>
-
+          <Text style={{ 
+            fontSize: 14, 
+            color: colors.TEXT_SECONDARY, 
+          }}>
+            Enter OTP
+          </Text>
           {/* OTP Input */}
           <View style={{ marginBottom: 30, alignItems: 'center' }}>
+            
             <OtpInput
               numberOfDigits={6}
               focusColor={colors.PRIMARY}
@@ -343,13 +244,13 @@ const ProfileCreation: React.FC<ProfileCreationProps> = ({ navigation }) => {
                   marginVertical: 10,
                 },
                 pinCodeContainerStyle: {
-                  backgroundColor: colors.BACKGROUND_SECONDARY,
+                  // backgroundColor: colors.BACKGROUND_SECONDARY,
                   borderColor: colors.BORDER_LIGHT,
                   borderWidth: 1,
                   borderRadius: 8,
                   width: 45,
-                  height: 50,
-                  marginHorizontal: 5,
+                  height: 45,
+                  // marginHorizontal: 5,
                 },
                 pinCodeTextStyle: {
                   fontSize: 18,
@@ -390,7 +291,7 @@ const ProfileCreation: React.FC<ProfileCreationProps> = ({ navigation }) => {
               Resend OTP
             </Text>
           </TouchableOpacity>
-        </KeyboardAwareScrollView>
+ 
       </AnimatedBottomSheet>
     </SafeAreaView>
   );

@@ -51,7 +51,7 @@ export const SIZES = {
   INPUT_HEIGHT: 48,
   
   // Component specific sizes
-  SLIDER_HEIGHT: SCREEN_HEIGHT * 0.5, // 50% of screen height
+  SLIDER_HEIGHT: SCREEN_HEIGHT * 0.45, // 50% of screen height
   PAGINATION_DOT_SIZE: 8,
   PAGINATION_DOT_ACTIVE_WIDTH: 20,
   

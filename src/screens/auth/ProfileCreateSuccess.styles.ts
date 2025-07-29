@@ -32,7 +32,7 @@ export const profileCreateSuccessStyles = StyleSheet.create({
   contentSection: {
     marginBottom: 60,
     alignItems: 'center',
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20,
   },
   heading: {
     fontSize: 28,
@@ -51,6 +51,6 @@ export const profileCreateSuccessStyles = StyleSheet.create({
   // Button Section
   buttonSection: {
     width: '100%',
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20,
   },
 });

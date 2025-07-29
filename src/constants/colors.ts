@@ -79,9 +79,9 @@ export const DARK_COLORS = {
   BACKGROUND_DARKER: '#0F0F0F',     // Very Dark Gray
   
   // Border Colors (adapted)
-  BORDER_LIGHT: '#333333',   // Dark Border
-  BORDER_MEDIUM: '#555555',  // Medium Dark Border
-  BORDER_DARK: '#CCCCCC',    // Light Border (inverted)
+  BORDER_LIGHT: '#DBDBDB',   // Dark Border
+  BORDER_MEDIUM: '#DBDBDB',  // Medium Dark Border
+  BORDER_DARK: '#DBDBDB',    // Light Border (inverted)
   
   // Transparent Colors
   TRANSPARENT: 'transparent',

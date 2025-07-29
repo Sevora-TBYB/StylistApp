@@ -49,12 +49,13 @@ const AnimatedBottomSheet: React.FC<AnimatedBottomSheetProps> = ({
   enablePanDownToClose = true,
   customHeader,
   borderRadius = 20,
-  keyboardVerticalOffset = 0,
+  keyboardVerticalOffset = 20,
 }) => {
   const { isDarkMode } = useSimpleDarkMode();
   const colors = getColors(isDarkMode);
 
   const translateY = useRef(new Animated.Value(height)).current;
+  const panGestureY = useRef(new Animated.Value(0)).current;
   const backdropOpacityAnim = useRef(new Animated.Value(0)).current;
   const keyboardHeight = useRef(new Animated.Value(0)).current;
 
@@ -70,9 +71,10 @@ const AnimatedBottomSheet: React.FC<AnimatedBottomSheetProps> = ({
     const keyboardWillShowListener = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
       (event) => {
+        const keyboardHeightValue = event.endCoordinates.height + keyboardVerticalOffset;
         Animated.timing(keyboardHeight, {
-          toValue: event.endCoordinates.height + keyboardVerticalOffset,
-          duration: Platform.OS === 'ios' ? event.duration : 250,
+          toValue: keyboardHeightValue,
+          duration: Platform.OS === 'ios' ? event.duration || 250 : 250,
           useNativeDriver: false,
         }).start();
       }
@@ -83,7 +85,7 @@ const AnimatedBottomSheet: React.FC<AnimatedBottomSheetProps> = ({
       (event) => {
         Animated.timing(keyboardHeight, {
           toValue: 0,
-          duration: Platform.OS === 'ios' ? event.duration : 250,
+          duration: Platform.OS === 'ios' ? event.duration || 250 : 250,
           useNativeDriver: false,
         }).start();
       }
@@ -93,14 +95,16 @@ const AnimatedBottomSheet: React.FC<AnimatedBottomSheetProps> = ({
       keyboardWillShowListener.remove();
       keyboardWillHideListener.remove();
     };
-  }, []);
+  }, [keyboardVerticalOffset]);
 
   const showBottomSheet = () => {
+    // Reset pan gesture value when showing
+    panGestureY.setValue(0);
     Animated.parallel([
       Animated.timing(translateY, {
         toValue: 0,
         duration: animationDuration,
-        useNativeDriver: true,
+        useNativeDriver: false, // Changed to false to avoid driver conflicts
       }),
       Animated.timing(backdropOpacityAnim, {
         toValue: backdropOpacity,
@@ -111,11 +115,13 @@ const AnimatedBottomSheet: React.FC<AnimatedBottomSheetProps> = ({
   };
 
   const hideBottomSheet = () => {
+    // Reset pan gesture value when hiding
+    panGestureY.setValue(0);
     Animated.parallel([
       Animated.timing(translateY, {
         toValue: height,
         duration: animationDuration,
-        useNativeDriver: true,
+        useNativeDriver: false, // Changed to false to avoid driver conflicts
       }),
       Animated.timing(backdropOpacityAnim, {
         toValue: 0,
@@ -133,16 +139,21 @@ const AnimatedBottomSheet: React.FC<AnimatedBottomSheetProps> = ({
       },
       onPanResponderMove: (_, gestureState) => {
         if (gestureState.dy > 0) {
-          translateY.setValue(gestureState.dy);
+          // Use setValue on a separate animated value to avoid native driver conflicts
+          panGestureY.setValue(gestureState.dy);
         }
       },
       onPanResponderRelease: (_, gestureState) => {
         if (gestureState.dy > height * 0.3 || gestureState.vy > 0.5) {
+          // Reset gesture value before closing
+          panGestureY.setValue(0);
           onClose();
         } else {
+          // Reset both values to original position
+          panGestureY.setValue(0);
           Animated.spring(translateY, {
             toValue: 0,
-            useNativeDriver: true,
+            useNativeDriver: false, // Changed to false to avoid driver conflicts
           }).start();
         }
       },
@@ -184,6 +195,7 @@ const AnimatedBottomSheet: React.FC<AnimatedBottomSheetProps> = ({
   };
 
   return (
+    
     <Modal
       visible={visible}
       transparent
@@ -217,16 +229,17 @@ const AnimatedBottomSheet: React.FC<AnimatedBottomSheetProps> = ({
               borderTopLeftRadius: borderRadius,
               borderTopRightRadius: borderRadius,
               transform: [
-                { translateY },
+                { 
+                  translateY: Animated.add(translateY, panGestureY)
+                },
                 {
                   translateY: keyboardHeight.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, -1],
+                    inputRange: [0, 400],
+                    outputRange: [0, -400],
                     extrapolate: 'clamp',
                   }),
                 },
               ],
-              marginBottom: keyboardHeight,
             },
           ]}
           {...(enablePanDownToClose ? panResponder.panHandlers : {})}
