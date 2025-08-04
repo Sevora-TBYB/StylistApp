@@ -4,8 +4,9 @@ import {HomeScreen, SearchScreen, ProfileScreen} from '../screens/app';
 
 export type AppTabParamList = {
   Home: undefined;
-  Search: undefined;
-  Profile: undefined;
+  Trial: undefined;
+  Wallet: undefined;
+  Account: undefined;
 };
 
 const Tab = createBottomTabNavigator<AppTabParamList>();
@@ -15,7 +16,7 @@ const AppNavigator: React.FC = () => {
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={{
-        headerShown: true,
+        headerShown: false, // Hide header since we have custom header in HomeScreen
         tabBarActiveTintColor: '#007bff',
         tabBarInactiveTintColor: '#666',
         tabBarStyle: {
@@ -36,7 +37,6 @@ const AppNavigator: React.FC = () => {
         component={HomeScreen}
         options={{
           title: 'Home',
-          headerTitle: 'Stylist App',
           tabBarLabel: 'Home',
           tabBarIcon: ({color, size}) => (
             <HomeIcon color={color} size={size} />
@@ -44,26 +44,35 @@ const AppNavigator: React.FC = () => {
         }}
       />
       <Tab.Screen
-        name="Search"
-        component={SearchScreen}
+        name="Trial"
+        component={SearchScreen} // Reusing SearchScreen as placeholder for Trial
         options={{
-          title: 'Search',
-          headerTitle: 'Search Styles',
-          tabBarLabel: 'Search',
+          title: 'Trial',
+          tabBarLabel: 'Trial',
           tabBarIcon: ({color, size}) => (
-            <SearchIcon color={color} size={size} />
+            <TrialIcon color={color} size={size} />
           ),
         }}
       />
       <Tab.Screen
-        name="Profile"
+        name="Wallet"
+        component={SearchScreen} // Reusing SearchScreen as placeholder for Wallet
+        options={{
+          title: 'Wallet',
+          tabBarLabel: 'Wallet',
+          tabBarIcon: ({color, size}) => (
+            <WalletIcon color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Account"
         component={ProfileScreen}
         options={{
-          title: 'Profile',
-          headerTitle: 'My Profile',
-          tabBarLabel: 'Profile',
+          title: 'Account',
+          tabBarLabel: 'Account',
           tabBarIcon: ({color, size}) => (
-            <ProfileIcon color={color} size={size} />
+            <AccountIcon color={color} size={size} />
           ),
         }}
       />
@@ -72,7 +81,7 @@ const AppNavigator: React.FC = () => {
 };
 
 // Simple icon components (you can replace with actual icon library later)
-import {View, Text} from 'react-native';
+import {View} from 'react-native';
 
 const HomeIcon: React.FC<{color: string; size: number}> = ({color, size}) => (
   <View
@@ -85,7 +94,7 @@ const HomeIcon: React.FC<{color: string; size: number}> = ({color, size}) => (
   />
 );
 
-const SearchIcon: React.FC<{color: string; size: number}> = ({color, size}) => (
+const TrialIcon: React.FC<{color: string; size: number}> = ({color, size}) => (
   <View
     style={{
       width: size,
@@ -98,7 +107,20 @@ const SearchIcon: React.FC<{color: string; size: number}> = ({color, size}) => (
   />
 );
 
-const ProfileIcon: React.FC<{color: string; size: number}> = ({color, size}) => (
+const WalletIcon: React.FC<{color: string; size: number}> = ({color, size}) => (
+  <View
+    style={{
+      width: size * 0.8,
+      height: size * 0.6,
+      backgroundColor: 'transparent',
+      borderRadius: 4,
+      borderWidth: 2,
+      borderColor: color,
+    }}
+  />
+);
+
+const AccountIcon: React.FC<{color: string; size: number}> = ({color, size}) => (
   <View
     style={{
       width: size,
