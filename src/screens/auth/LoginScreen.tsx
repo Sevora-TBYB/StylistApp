@@ -52,7 +52,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
           {sliderData.map((item, index) => (
             <View key={item.id} style={loginScreenStyles.slide}>
               <View style={loginScreenStyles.imageContainer}>
-                <Image source={item.image} style={loginScreenStyles.sliderImage} resizeMode="cover" />
+                <Image source={item.image} style={loginScreenStyles.sliderImage} resizeMode="stretch" />
               </View>
               <View style={loginScreenStyles.textContainer}>
                 <Text style={[loginScreenStyles.slideTitle, {color: colors.TEXT_WHITE}]}>

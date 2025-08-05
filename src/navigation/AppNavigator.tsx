@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { HomeScreen, SearchScreen, ProfileScreen } from '../screens/app';
-import CustomBottomTab from '../components/CustomBottomTab';
+import CustomTabBar from '../components/CustomTabBar';
 
 export type AppTabParamList = {
   Home: undefined;
@@ -10,49 +10,47 @@ export type AppTabParamList = {
   Account: undefined;
 };
 
+const Tab = createBottomTabNavigator<AppTabParamList>();
+
 const AppNavigator: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('Home');
-
-  const handleTabPress = (tabName: string) => {
-    setActiveTab(tabName);
-  };
-
-  const renderActiveScreen = () => {
-    switch (activeTab) {
-      case 'Home':
-        return <HomeScreen />;
-      case 'Trial':
-        return <SearchScreen />;
-      case 'Wallet':
-        return <SearchScreen />;
-      case 'Account':
-        return <ProfileScreen />;
-      default:
-        return <HomeScreen />;
-    }
-  };
-
   return (
-    <View style={styles.container}>
-      <View style={styles.screenContainer}>
-        {renderActiveScreen()}
-      </View>
-      <CustomBottomTab 
-        activeTab={activeTab} 
-        onTabPress={handleTabPress} 
+    <Tab.Navigator
+      initialRouteName="Home"
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarLabel: 'Home',
+        }}
       />
-    </View>
+      <Tab.Screen
+        name="Trial"
+        component={SearchScreen}
+        options={{
+          tabBarLabel: 'Trial',
+        }}
+      />
+      <Tab.Screen
+        name="Wallet"
+        component={SearchScreen}
+        options={{
+          tabBarLabel: 'Wallet',
+        }}
+      />
+      <Tab.Screen
+        name="Account"
+        component={ProfileScreen}
+        options={{
+          tabBarLabel: 'Account',
+        }}
+      />
+    </Tab.Navigator>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  screenContainer: {
-    flex: 1,
-  },
-});
 
 export default AppNavigator;

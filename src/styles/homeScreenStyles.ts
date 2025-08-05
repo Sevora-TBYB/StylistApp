@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 
 export const homeScreenStyles = StyleSheet.create({
   container: { 
-    flex: 1, 
+    // height: '100%',
     backgroundColor: '#fff',
   },
   header: {
@@ -123,7 +123,9 @@ export const homeScreenStyles = StyleSheet.create({
   scheduleContainer: {
     // paddingHorizontal: 16,
     paddingLeft: 16,
-    paddingVertical: 10,
+    paddingTop: 10,
+    paddingBottom: 200,
+    // borderWidth:2
   },
   allDayLabel: {
     fontSize: 14,
