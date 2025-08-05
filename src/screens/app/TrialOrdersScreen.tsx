@@ -29,6 +29,7 @@ const TrialOrdersScreen: React.FC = () => {
   const route = useRoute<RouteProp<AppTabParamList, 'Trial'>>();
   const [activeTab, setActiveTab] = useState<'ongoing' | 'completed'>('ongoing');
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [countdowns, setCountdowns] = useState<Record<string, number>>({});
 
   // Check if we have appointment data from navigation
   const appointmentData = route.params?.appointmentData;
@@ -40,7 +41,38 @@ const TrialOrdersScreen: React.FC = () => {
     }
   }, [appointmentData]);
 
-  // Mock data for trial orders
+  useEffect(() => {
+    // Initialize countdowns for ongoing trials
+    const initialCountdowns: Record<string, number> = {};
+    trialOrders.forEach(order => {
+      if (order.status === 'ongoing' && order.countdownTime) {
+        initialCountdowns[order.id] = order.countdownTime;
+      }
+    });
+    setCountdowns(initialCountdowns);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+      
+      // Update countdowns
+      setCountdowns(prev => {
+        const updated = { ...prev };
+        Object.keys(updated).forEach(id => {
+          if (updated[id] > 0) {
+            updated[id] -= 1;
+          }
+        });
+        return updated;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Mock data for trial orders - sorted by time for upcoming trials first
   const trialOrders: TrialOrder[] = [
     {
       id: '2345',
@@ -53,6 +85,18 @@ const TrialOrdersScreen: React.FC = () => {
       timeAway: '10 mins away',
       status: 'ongoing',
       countdownTime: 300, // 5 minutes in seconds
+    },
+    {
+      id: '2346',
+      company: 'UPCOMING TRIAL CO',
+      address: 'House 25, Street 78, Future Location, Coming Soon Address, Pin Code 789012',
+      orderId: '#2346',
+      trialStartTime: '02:15 PM',
+      pickupDistance: '15 KM',
+      dropDistance: '8 KM',
+      timeAway: '45 mins away',
+      status: 'ongoing',
+      countdownTime: 900, // 15 minutes in seconds
     },
     {
       id: '2344',
@@ -79,14 +123,6 @@ const TrialOrdersScreen: React.FC = () => {
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
 
   const filteredOrders = trialOrders.filter(order => order.status === activeTab);
 
@@ -129,7 +165,7 @@ const TrialOrdersScreen: React.FC = () => {
               style={styles.goToStoreGradient}
             >
               <Text style={styles.goToStoreText}>
-                GO TO STORE {order.countdownTime && formatCountdown(order.countdownTime)}
+                GO TO STORE {countdowns[order.id] && formatCountdown(countdowns[order.id])}
               </Text>
             </LinearGradient>
           </TouchableOpacity>
