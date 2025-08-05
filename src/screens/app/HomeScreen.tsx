@@ -16,8 +16,9 @@ import NotificationIcon from '../../assets/images/svg/NotificationIcon';
 import PlusIcon from '../../assets/images/svg/PlusIcon';
 import { useHomeScreen } from '../../hooks/useHomeScreen';
 import { homeScreenStyles as styles } from '../../styles/homeScreenStyles';
+import { HomeScreenProps } from '../../navigation/types';
 
-const HomeScreen: React.FC = () => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const {
     selectedDate,
     setSelectedDate,
@@ -141,13 +142,17 @@ const HomeScreen: React.FC = () => {
               {selectedDateAppointments
                 .filter(a => a.time === time)
                 .map(a => (
-                  <View
+                  <TouchableOpacity
                     key={a.id}
                     style={[
                       styles.appointmentCard,
                       styles.betweenAppointment,
                       { backgroundColor: `${a.borderColor}1A`, borderColor: a.borderColor },
                     ]}
+                    onPress={() => navigation.navigate('Trial', { 
+                      trialId: a.id.toString(),
+                      selectedDate: selectedDate.toISOString()
+                    })}
                   >
                     <View style={styles.appointmentTopRow}>
                       <Text
@@ -162,7 +167,7 @@ const HomeScreen: React.FC = () => {
                     <Text style={[styles.address,{ color: a.borderColor }]} numberOfLines={3}>
                       {a.address}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 ))}
 
               {/* Render appointments that fall between this and next time slot */}
@@ -182,7 +187,7 @@ const HomeScreen: React.FC = () => {
                 .map(a => {
                   const position = getAppointmentPosition(a.time, index);
                   return (
-                    <View
+                    <TouchableOpacity
                       key={`${a.id}-between`}
                       style={[
                         styles.appointmentCard,
@@ -193,6 +198,10 @@ const HomeScreen: React.FC = () => {
                           borderColor: a.borderColor
                         },
                       ]}
+                      onPress={() => navigation.navigate('Trial', { 
+                        trialId: a.id.toString(),
+                        selectedDate: selectedDate.toISOString()
+                      })}
                     >
                       <View style={styles.appointmentTopRow}>
                         <Text
@@ -208,7 +217,7 @@ const HomeScreen: React.FC = () => {
                       <Text style={[styles.address,{ color: a.borderColor }]} numberOfLines={2}>
                         {a.address}
                       </Text>
-                    </View>
+                    </TouchableOpacity>
                   );
                 })}
             </View>
