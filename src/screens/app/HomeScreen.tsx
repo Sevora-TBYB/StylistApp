@@ -11,13 +11,19 @@ import {
   Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import LinearGradient from 'react-native-linear-gradient';
 import NotificationIcon from '../../assets/images/svg/NotificationIcon';
 import PlusIcon from '../../assets/images/svg/PlusIcon';
 import { useHomeScreen } from '../../hooks/useHomeScreen';
 import { homeScreenStyles as styles } from '../../styles/homeScreenStyles';
+import { AppTabParamList } from '../../navigation/AppNavigator';
+
+type NavigationProp = BottomTabNavigationProp<AppTabParamList, 'Home'>;
 
 const HomeScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp>();
   const {
     selectedDate,
     setSelectedDate,
@@ -31,6 +37,12 @@ const HomeScreen: React.FC = () => {
     timeToMinutes,
     getAppointmentPosition,
   } = useHomeScreen();
+
+  const handleAppointmentPress = (appointment: any) => {
+    navigation.navigate('Trial', { 
+      appointmentData: appointment 
+    });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -141,13 +153,15 @@ const HomeScreen: React.FC = () => {
               {selectedDateAppointments
                 .filter(a => a.time === time)
                 .map(a => (
-                  <View
+                  <TouchableOpacity
                     key={a.id}
                     style={[
                       styles.appointmentCard,
                       styles.betweenAppointment,
                       { backgroundColor: `${a.borderColor}1A`, borderColor: a.borderColor },
                     ]}
+                    onPress={() => handleAppointmentPress(a)}
+                    activeOpacity={0.7}
                   >
                     <View style={styles.appointmentTopRow}>
                       <Text
@@ -162,7 +176,7 @@ const HomeScreen: React.FC = () => {
                     <Text style={[styles.address,{ color: a.borderColor }]} numberOfLines={3}>
                       {a.address}
                     </Text>
-                  </View>
+                  </TouchableOpacity>
                 ))}
 
               {/* Render appointments that fall between this and next time slot */}
@@ -182,7 +196,7 @@ const HomeScreen: React.FC = () => {
                 .map(a => {
                   const position = getAppointmentPosition(a.time, index);
                   return (
-                    <View
+                    <TouchableOpacity
                       key={`${a.id}-between`}
                       style={[
                         styles.appointmentCard,
@@ -193,6 +207,8 @@ const HomeScreen: React.FC = () => {
                           borderColor: a.borderColor
                         },
                       ]}
+                      onPress={() => handleAppointmentPress(a)}
+                      activeOpacity={0.7}
                     >
                       <View style={styles.appointmentTopRow}>
                         <Text
@@ -208,7 +224,7 @@ const HomeScreen: React.FC = () => {
                       <Text style={[styles.address,{ color: a.borderColor }]} numberOfLines={2}>
                         {a.address}
                       </Text>
-                    </View>
+                    </TouchableOpacity>
                   );
                 })}
             </View>

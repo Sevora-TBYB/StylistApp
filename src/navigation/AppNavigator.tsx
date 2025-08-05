@@ -1,11 +1,11 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { HomeScreen, SearchScreen, ProfileScreen } from '../screens/app';
+import { HomeScreen, SearchScreen, TrialOrdersScreen, ProfileScreen } from '../screens/app';
 import CustomTabBar from '../components/CustomTabBar';
 
 export type AppTabParamList = {
   Home: undefined;
-  Trial: undefined;
+  Trial: { appointmentData?: any } | undefined;
   Wallet: undefined;
   Account: undefined;
 };
@@ -30,7 +30,7 @@ const AppNavigator: React.FC = () => {
       />
       <Tab.Screen
         name="Trial"
-        component={SearchScreen}
+        component={TrialOrdersScreen}
         options={{
           tabBarLabel: 'Trial',
         }}
