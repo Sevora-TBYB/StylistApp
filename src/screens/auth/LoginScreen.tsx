@@ -54,14 +54,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
               <View style={loginScreenStyles.imageContainer}>
                 <Image source={item.image} style={loginScreenStyles.sliderImage} resizeMode="stretch" />
               </View>
-              <View style={loginScreenStyles.textContainer}>
-                <Text style={[loginScreenStyles.slideTitle, {color: colors.TEXT_WHITE}]}>
-                  {item.title}
-                </Text>
-                <Text style={[loginScreenStyles.slideDescription, {color: colors.TEXT_WHITE}]}>
-                  {item.description}
-                </Text>
-              </View>
             </View>
           ))}
         </ScrollView>

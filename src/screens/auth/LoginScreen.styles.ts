@@ -18,32 +18,13 @@ export const loginScreenStyles = StyleSheet.create({
     paddingHorizontal: SIZES.PADDING_LARGE,
   },
   imageContainer: {
-    flex: 0.7,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   sliderImage: {
     width: SIZES.SCREEN_WIDTH, // Using SIZES instead of width
     height: SIZES.SLIDER_HEIGHT,
-  },
-  textContainer: {
-    flex: 0.3,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: SIZES.PADDING_LARGE,
-  },
-  slideTitle: {
-    fontSize: SIZES.FONT_SIZE_EXTRA_LARGE,
-    fontWeight: 'bold',
-    color: COLORS.TEXT_PRIMARY,
-    textAlign: 'center',
-    marginBottom: SIZES.MARGIN_SMALL,
-  },
-  slideDescription: {
-    fontSize: SIZES.FONT_SIZE_MEDIUM,
-    color: COLORS.TEXT_SECONDARY,
-    textAlign: 'center',
-    lineHeight: SIZES.LINE_HEIGHT_MEDIUM,
   },
   pagination: {
     flexDirection: 'row',
