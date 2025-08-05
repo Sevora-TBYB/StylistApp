@@ -3,11 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SearchScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -25,33 +25,6 @@ const SearchScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>Search Styles</Text>
-        
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search for styles, trends, or items..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        
-        <ScrollView style={styles.scrollContent}>
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Popular Categories</Text>
-            <View style={styles.categoryGrid}>
-              {searchCategories.map((category, index) => (
-                <TouchableOpacity key={index} style={styles.categoryCard}>
-                  <Text style={styles.categoryText}>{category}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-          
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recent Searches</Text>
-            <View style={styles.recentSearches}>
-              <Text style={styles.recentSearchText}>No recent searches</Text>
-            </View>
-          </View>
-        </ScrollView>
       </View>
     </SafeAreaView>
   );

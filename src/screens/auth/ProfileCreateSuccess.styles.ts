@@ -12,7 +12,7 @@ export const profileCreateSuccessStyles = StyleSheet.create({
   
   // Icon Section
   iconSection: {
-    marginBottom: 40,
+    // marginBottom: 40,
     alignItems: 'center',
   },
   successIcon: {
@@ -30,7 +30,7 @@ export const profileCreateSuccessStyles = StyleSheet.create({
 
   // Content Section
   contentSection: {
-    marginBottom: 60,
+    marginBottom: 30,
     alignItems: 'center',
     // paddingHorizontal: 20,
   },
@@ -38,7 +38,7 @@ export const profileCreateSuccessStyles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 6,
     lineHeight: 34,
   },
   description: {
