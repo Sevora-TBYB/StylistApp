@@ -195,7 +195,6 @@ const AnimatedBottomSheet: React.FC<AnimatedBottomSheetProps> = ({
   };
 
   return (
-    
     <Modal
       visible={visible}
       transparent
@@ -244,7 +243,7 @@ const AnimatedBottomSheet: React.FC<AnimatedBottomSheetProps> = ({
           ]}
           {...(enablePanDownToClose ? panResponder.panHandlers : {})}
         >
-          <SafeAreaView style={animatedBottomSheetStyles.safeArea}>
+          <SafeAreaView style={animatedBottomSheetStyles.safeArea} edges={['bottom']}>
             {renderHeader()}
             
             {/* Content */}

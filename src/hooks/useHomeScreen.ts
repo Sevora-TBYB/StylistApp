@@ -87,7 +87,7 @@ export const useHomeScreen = () => {
     {
       id: 2,
       date: new Date(),
-      time: '12:45 PM',
+      time: '09:45 AM',
       store: 'Adidas Store',
       orderNumber: '#2346',
       address: '15A Park Street, Kolkata, West Bengal',

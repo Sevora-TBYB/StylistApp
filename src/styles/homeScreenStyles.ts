@@ -121,7 +121,8 @@ export const homeScreenStyles = StyleSheet.create({
     paddingLeft: 14,
   },
   scheduleContainer: {
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
+    paddingLeft: 16,
     paddingVertical: 10,
   },
   allDayLabel: {
@@ -132,16 +133,16 @@ export const homeScreenStyles = StyleSheet.create({
   },
   timeSlot: {
     flexDirection: 'row',
-    marginBottom: 16,
     alignItems: 'flex-start',
     minHeight: 40,
     position: 'relative',
+    // paddingRight:10,
+    // marginRight: 10,
   },
   timeLabel: {
     width: 70,
     fontSize: 13,
     color: '#555',
-    paddingTop: 6,
   },
   timeSlotContent: {
     flex: 1,
@@ -153,6 +154,8 @@ export const homeScreenStyles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     marginBottom: 8,
+    marginHorizontal:7,
+    // elevation:1,
   },
   betweenAppointment: {
     position: 'absolute',
@@ -160,7 +163,6 @@ export const homeScreenStyles = StyleSheet.create({
     right: 0,
     zIndex: 1,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
   },
   timeIndicator: {
     fontSize: 11,
@@ -172,6 +174,7 @@ export const homeScreenStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 6,
+    // marginRight: 10,
   },
   storeName: {
     fontSize: 15,

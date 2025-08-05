@@ -200,36 +200,34 @@ const ProfileCreation: React.FC<ProfileCreationProps> = ({ navigation }) => {
         height={350}
         keyboardVerticalOffset={30}
       >
-    
-    <Text style={{ 
+        <View style={{ flex: 1, paddingBottom: 20 }}>
+          <Text style={{ 
             fontSize: 22, 
             color: colors.PRIMARY, 
-            // textAlign: 'center',
             fontWeight: '600',
             marginBottom: 5,
-            // paddingHorizontal: 10
           }}>
             Mobile Number Verification
           </Text>
+          
           {/* Description */}
           <Text style={{ 
             fontSize: 12, 
             color: colors.TEXT_SECONDARY, 
-            // textAlign: 'center',
             marginBottom: 20,
-            // paddingHorizontal: 10
           }}>
             OTP has been sent to {mobileNumber}
           </Text>
+          
           <Text style={{ 
             fontSize: 14, 
             color: colors.TEXT_SECONDARY, 
           }}>
             Enter OTP
           </Text>
+          
           {/* OTP Input */}
           <View style={{ marginBottom: 30, alignItems: 'center' }}>
-            
             <OtpInput
               numberOfDigits={6}
               focusColor={colors.PRIMARY}
@@ -244,13 +242,11 @@ const ProfileCreation: React.FC<ProfileCreationProps> = ({ navigation }) => {
                   marginVertical: 10,
                 },
                 pinCodeContainerStyle: {
-                  // backgroundColor: colors.BACKGROUND_SECONDARY,
                   borderColor: colors.BORDER_LIGHT,
                   borderWidth: 1,
                   borderRadius: 8,
                   width: 45,
                   height: 45,
-                  // marginHorizontal: 5,
                 },
                 pinCodeTextStyle: {
                   fontSize: 18,
@@ -291,7 +287,7 @@ const ProfileCreation: React.FC<ProfileCreationProps> = ({ navigation }) => {
               Resend OTP
             </Text>
           </TouchableOpacity>
- 
+        </View>
       </AnimatedBottomSheet>
     </SafeAreaView>
   );

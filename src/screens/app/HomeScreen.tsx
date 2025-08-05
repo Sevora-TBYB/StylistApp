@@ -145,7 +145,8 @@ const HomeScreen: React.FC = () => {
                     key={a.id}
                     style={[
                       styles.appointmentCard,
-                      { backgroundColor: `${a.borderColor}1A` },
+                      styles.betweenAppointment,
+                      { backgroundColor: `${a.borderColor}1A`, borderColor: a.borderColor },
                     ]}
                   >
                     <View style={styles.appointmentTopRow}>
@@ -154,11 +155,11 @@ const HomeScreen: React.FC = () => {
                       >
                         {a.store}
                       </Text>
-                      <Text style={styles.orderNumber}>
+                      <Text style={[styles.orderNumber,{ color: a.borderColor }]}>
                         Order ID: {a.orderNumber}
                       </Text>
                     </View>
-                    <Text style={styles.address} numberOfLines={3}>
+                    <Text style={[styles.address,{ color: a.borderColor }]} numberOfLines={3}>
                       {a.address}
                     </Text>
                   </View>
@@ -189,6 +190,7 @@ const HomeScreen: React.FC = () => {
                         {
                           backgroundColor: `${a.borderColor}1A`,
                           top: position || 0,
+                          borderColor: a.borderColor
                         },
                       ]}
                     >
@@ -198,12 +200,12 @@ const HomeScreen: React.FC = () => {
                         >
                           {a.store}
                         </Text>
-                        <Text style={styles.orderNumber}>
+                        <Text style={[styles.orderNumber,{ color: a.borderColor }]}>
                           Order ID: {a.orderNumber}
                         </Text>
                       </View>
                       {/* <Text style={styles.timeIndicator}>{a.time}</Text> */}
-                      <Text style={styles.address} numberOfLines={2}>
+                      <Text style={[styles.address,{ color: a.borderColor }]} numberOfLines={2}>
                         {a.address}
                       </Text>
                     </View>
