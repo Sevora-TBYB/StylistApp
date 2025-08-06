@@ -141,16 +141,33 @@ export const homeScreenStyles = StyleSheet.create({
     // paddingRight:10,
     // marginRight: 10,
   },
-  timeLabel: {
+  timeSlotHeader: {
     width: 70,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    position: 'relative',
+    paddingTop: 0,
+  },
+  timeLabel: {
     fontSize: 13,
     color: '#555',
+    lineHeight: 18,
+    marginTop: 0,
   },
   timeSlotContent: {
     flex: 1,
     position: 'relative',
     minHeight: 40,
     backgroundColor:"#F4F5F6",
+  },
+  appointmentAreaTimeLine: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: '#fff',
+    top: 9, // Align with time text
+    zIndex: 1,
   },
   appointmentCard: {
     borderRadius: 10,
@@ -163,7 +180,7 @@ export const homeScreenStyles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    zIndex: 1,
+    zIndex: 100,
     borderWidth: 1,
   },
   timeIndicator: {
