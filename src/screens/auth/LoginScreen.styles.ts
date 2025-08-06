@@ -25,6 +25,7 @@ export const loginScreenStyles = StyleSheet.create({
   sliderImage: {
     width: SIZES.SCREEN_WIDTH, // Using SIZES instead of width
     height: SIZES.SLIDER_HEIGHT,
+    opacity:0.7
   },
   textContainer: {
     flex: 0.3,

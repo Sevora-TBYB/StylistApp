@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { Alert } from 'react-native';
+import { showSuccessToast, showErrorToast, showWarningToast } from '../utils/toastConfig';
+import { useAuthApi } from './useApi';
 
 interface UseLoginScreenProps {
   navigation: any;
@@ -15,6 +18,9 @@ export const useLoginScreen = ({ navigation }: UseLoginScreenProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // API hook for authentication
+  const authApi = useAuthApi();
 
   const sliderData: SliderDataItem[] = [
     {
@@ -44,9 +50,50 @@ export const useLoginScreen = ({ navigation }: UseLoginScreenProps) => {
     setCurrentSlide(currentSlideIndex);
   };
 
-  const handleLogin = () => {
-    // Navigate to profile creation screen after login
-    navigation.navigate('ProfileCreation');
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email.trim());
+  };
+
+  const handleLogin = async () => {
+    // Validate input
+    if (!email.trim()) {
+      showErrorToast('Email Required', 'Please enter your email address');
+      return;
+    }
+
+    if (!password.trim()) {
+      showErrorToast('Password Required', 'Please enter your password');
+      return;
+    }
+
+    // Validate email format
+    if (!validateEmail(email)) {
+      showErrorToast('Invalid Email', 'Please enter a valid email address');
+      return;
+    }
+
+    try {
+      const result = await authApi.login({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      if (result && result.status) {
+        showSuccessToast('Login Successful', result.message || 'Welcome to StylistApp!');
+
+        // Navigate to ProfileCreation screen after successful login
+        setTimeout(() => {
+          navigation.navigate('ProfileCreation');
+        }, 1000);
+      } else {
+        const errorMessage = authApi.error?.message || 'Login failed. Please try again.';
+        showErrorToast('Login Failed', errorMessage);
+      }
+    } catch (error) {
+      showErrorToast('Error', 'An unexpected error occurred. Please try again.');
+      console.error('Login error:', error);
+    }
   };
 
   const handleNavigateToSignup = () => {
@@ -62,9 +109,8 @@ export const useLoginScreen = ({ navigation }: UseLoginScreenProps) => {
       return { isValid: false, message: 'Password is required' };
     }
 
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    // Enhanced email validation
+    if (!validateEmail(email)) {
       return { isValid: false, message: 'Please enter a valid email address' };
     }
 
@@ -74,11 +120,10 @@ export const useLoginScreen = ({ navigation }: UseLoginScreenProps) => {
   const handleLoginWithValidation = () => {
     const validation = validateForm();
     
-    // if (!validation.isValid) {
-    //   // You can show an alert or toast here
-    //   console.log(validation.message);
-    //   return;
-    // }
+    if (!validation.isValid) {
+      showErrorToast('Validation Error', validation.message);
+      return;
+    }
 
     handleLogin();
   };
@@ -97,5 +142,10 @@ export const useLoginScreen = ({ navigation }: UseLoginScreenProps) => {
     handleLogin: handleLoginWithValidation,
     handleNavigateToSignup,
     validateForm,
+    
+    // API States
+    isLoading: authApi.loading,
+    error: authApi.error,
+    clearError: authApi.clearError,
   };
 };

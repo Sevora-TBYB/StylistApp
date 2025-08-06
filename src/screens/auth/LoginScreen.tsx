@@ -8,7 +8,9 @@ import {
   StatusBar,
   Platform,
   KeyboardAvoidingView,
+  Dimensions,
 } from 'react-native';
+import Toast from 'react-native-toast-message';
 import {COLORS, getColors, SIZES} from '../../constants';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -17,6 +19,8 @@ import { useSimpleDarkMode, useLoginScreen } from '../../hooks';
 import { loginScreenStyles } from './LoginScreen.styles';
 import { CustomTextInput, GradientButton } from '../../components';
 import { moderateScale } from '../../utils/Metrices';
+
+const { width: screenWidth } = Dimensions.get('window');
 
 interface LoginScreenProps {
   navigation: any;
@@ -34,6 +38,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     handleScroll,
     handleLogin,
     handleNavigateToSignup,
+    isLoading,
+    error,
+    clearError,
   } = useLoginScreen({ navigation });
   
   // Get colors based on current theme
@@ -133,13 +140,93 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
             />
             
             <GradientButton
-              title="Login"
+              title={isLoading ? "Logging in..." : "Login"}
               onPress={handleLogin}
               colors={['#121212', '#666666']}
+              disabled={isLoading}
             />
           </View>
         </View>
         </KeyboardAwareScrollView>
+        <Toast 
+          config={{
+            success: (props: any) => (
+              <View style={{
+                height: 50,
+                width: screenWidth * 0.8,
+                backgroundColor: '#10B981',
+                alignSelf: 'center',
+                borderRadius: 8,
+                paddingHorizontal: 16,
+                justifyContent: 'center',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.15,
+                shadowRadius: 4,
+                elevation: 5,
+              }}>
+                <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>
+                  {props.text1}
+                </Text>
+                {props.text2 && (
+                  <Text style={{ color: 'white', fontSize: 12, opacity: 0.9, marginTop: 2 }}>
+                    {props.text2}
+                  </Text>
+                )}
+              </View>
+            ),
+            error: (props: any) => (
+              <View style={{
+                height: 50,
+                width: screenWidth * 0.8,
+                backgroundColor: '#EF4444',
+                alignSelf: 'center',
+                borderRadius: 8,
+                paddingHorizontal: 16,
+                justifyContent: 'center',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.15,
+                shadowRadius: 4,
+                elevation: 5,
+              }}>
+                <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>
+                  {props.text1}
+                </Text>
+                {props.text2 && (
+                  <Text style={{ color: 'white', fontSize: 12, opacity: 0.9, marginTop: 2 }}>
+                    {props.text2}
+                  </Text>
+                )}
+              </View>
+            ),
+            info: (props: any) => (
+              <View style={{
+                height: 50,
+                width: screenWidth * 0.8,
+                backgroundColor: '#F59E0B',
+                alignSelf: 'center',
+                borderRadius: 8,
+                paddingHorizontal: 16,
+                justifyContent: 'center',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.15,
+                shadowRadius: 4,
+                elevation: 5,
+              }}>
+                <Text style={{ color: 'white', fontWeight: '600', fontSize: 14 }}>
+                  {props.text1}
+                </Text>
+                {props.text2 && (
+                  <Text style={{ color: 'white', fontSize: 12, opacity: 0.9, marginTop: 2 }}>
+                    {props.text2}
+                  </Text>
+                )}
+              </View>
+            ),
+          }}
+        />
     </SafeAreaView>
   );
 };
