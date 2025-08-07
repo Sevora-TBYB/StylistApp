@@ -5,10 +5,15 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
+  Animated,
+  PanResponder,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { useRoute, RouteProp } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
+import NotificationIcon from '../../assets/images/svg/NotificationIcon';
+import ClockIcon from '../../assets/images/svg/ClockIcon';
+import DoubleArrowIcon from '../../assets/images/svg/DoubleArrowIcon';
 import { trialOrdersStyles as styles } from '../../styles/trialOrdersStyles';
 import { AppTabParamList } from '../../navigation/AppNavigator';
 
@@ -30,49 +35,53 @@ const TrialOrdersScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'ongoing' | 'completed'>('ongoing');
   const [currentTime, setCurrentTime] = useState(new Date());
   const [countdowns, setCountdowns] = useState<Record<string, number>>({});
+  const [isSwipeButtonEnabled, setIsSwipeButtonEnabled] = useState(true); // Control which button to show
 
-  // Check if we have appointment data from navigation
   const appointmentData = route.params?.appointmentData;
 
-  useEffect(() => {
-    // If we have appointment data, show ongoing trials first
-    if (appointmentData) {
-      setActiveTab('ongoing');
-    }
-  }, [appointmentData]);
+  // Swipe animation state
+  const swipeAnimation = new Animated.Value(0);
 
-  useEffect(() => {
-    // Initialize countdowns for ongoing trials
-    const initialCountdowns: Record<string, number> = {};
-    trialOrders.forEach(order => {
-      if (order.status === 'ongoing' && order.countdownTime) {
-        initialCountdowns[order.id] = order.countdownTime;
+  // Handle swipe to store
+  const handleSwipeToStore = () => {
+    console.log('Swiped to store!');
+    // Add your store navigation logic here
+  };
+
+  // Pan responder for swipe gesture
+  const panResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: (evt, gestureState) => {
+      return Math.abs(gestureState.dx) > 20;
+    },
+    onPanResponderMove: (evt, gestureState) => {
+      if (gestureState.dx > 0) {
+        swipeAnimation.setValue(gestureState.dx);
       }
-    });
-    setCountdowns(initialCountdowns);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-      
-      // Update countdowns
-      setCountdowns(prev => {
-        const updated = { ...prev };
-        Object.keys(updated).forEach(id => {
-          if (updated[id] > 0) {
-            updated[id] -= 1;
-          }
+    },
+    onPanResponderRelease: (evt, gestureState) => {
+      if (gestureState.dx > 100) {
+        // Complete swipe
+        Animated.timing(swipeAnimation, {
+          toValue: 1200,
+          duration: 100,
+          useNativeDriver: false,
+        }).start(() => {
+          handleSwipeToStore();
+          swipeAnimation.setValue(0);
         });
-        return updated;
-      });
-    }, 1000);
+      } else {
+        // Reset position
+        Animated.spring(swipeAnimation, {
+          toValue: 0,
+          useNativeDriver: false,
+        }).start();
+      }
+    },
+  });
 
-    return () => clearInterval(timer);
-  }, []);
 
-  // Mock data for trial orders - sorted by time for upcoming trials first
+
+
   const trialOrders: TrialOrder[] = [
     {
       id: '2345',
@@ -84,7 +93,7 @@ const TrialOrdersScreen: React.FC = () => {
       dropDistance: '12 KM',
       timeAway: '10 mins away',
       status: 'ongoing',
-      countdownTime: 300, // 5 minutes in seconds
+      countdownTime: 300,
     },
     {
       id: '2346',
@@ -96,7 +105,7 @@ const TrialOrdersScreen: React.FC = () => {
       dropDistance: '8 KM',
       timeAway: '45 mins away',
       status: 'ongoing',
-      countdownTime: 900, // 15 minutes in seconds
+      countdownTime: 900,
     },
     {
       id: '2344',
@@ -111,126 +120,141 @@ const TrialOrdersScreen: React.FC = () => {
     },
   ];
 
-  const formatTime = (date: Date) => {
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const seconds = date.getSeconds();
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  const formatCountdown = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const filteredOrders = trialOrders.filter(order => order.status === activeTab);
-
-  const renderTrialCard = (order: TrialOrder) => (
-    <View key={order.id} style={styles.trialCard}>
-      <Text style={styles.newTrialText}>New Trial Order!</Text>
-      
-      <View style={styles.trialTimeSection}>
-        <Text style={styles.trialStartTime}>{order.trialStartTime}</Text>
-      </View>
-
-      <View style={styles.distanceRow}>
-        <View style={styles.distanceItem}>
-          <Text style={styles.distanceLabel}>Pickup</Text>
-          <Text style={styles.distanceValue}>{order.pickupDistance}</Text>
-        </View>
-        <View style={styles.distanceItem}>
-          <Text style={styles.distanceLabel}>Drop</Text>
-          <Text style={styles.distanceValue}>{order.dropDistance}</Text>
-        </View>
-      </View>
-
-      <Text style={styles.companyName}>{order.company}</Text>
-      <Text style={styles.address} numberOfLines={2}>
-        {order.address}
-      </Text>
-
-      <View style={styles.orderFooter}>
-        <View style={styles.orderInfoRow}>
-          <Text style={styles.orderId}>Order ID: {order.orderId}</Text>
-          <Text style={styles.timeAway}>{order.timeAway}</Text>
-        </View>
-        
-        {order.status === 'ongoing' && (
-          <TouchableOpacity style={styles.goToStoreButton}>
-            <LinearGradient
-              colors={['#B2B2B2', '#FFFFFF']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.goToStoreGradient}
-            >
-              <Text style={styles.goToStoreText}>
-                GO TO STORE {countdowns[order.id] && formatCountdown(countdowns[order.id])}
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        )}
-      </View>
-    </View>
-  );
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#000" />
-      
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Trial Orders</Text>
-        <Text style={styles.headerTime}>{formatTime(currentTime)}</Text>
-      </View>
-
-      {/* Tab Switcher */}
-      <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            activeTab === 'ongoing' && styles.activeTab,
-          ]}
-          onPress={() => setActiveTab('ongoing')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'ongoing' && styles.activeTabText,
-            ]}
+      <StatusBar barStyle="dark-content" />
+    <View style={styles.headerContainer}>
+      <Text style={styles.headerTitle}>Trial Orders</Text>
+      <View style={styles.headerRightSection}>
+        <View style={styles.countdownBadge}>
+          <Text style={styles.countdownText}>1:30:59</Text>
+        </View>
+        <TouchableOpacity style={styles.notificationButton}>
+          <LinearGradient
+            colors={['#E5E5E5', '#F6F6F6']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.notificationButtonGradient}
           >
-            ONGOING
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.tab,
-            activeTab === 'completed' && styles.activeTab,
-          ]}
-          onPress={() => setActiveTab('completed')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'completed' && styles.activeTabText,
-            ]}
-          >
-            COMPLETED
-          </Text>
+            <NotificationIcon color='#000'/>
+          </LinearGradient>
         </TouchableOpacity>
       </View>
+    </View>
 
-      {/* Trial Orders List */}
-      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        {filteredOrders.map(renderTrialCard)}
-        {filteredOrders.length === 0 && (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>
-              No {activeTab} trial orders found
-            </Text>
+    <View style={[styles.tabContainer, { borderColor:'#DBDBDB'}]}>
+      <TouchableOpacity
+        style={[
+          styles.tabButton,
+          activeTab === 'ongoing' && styles.activeTabButton,
+        ]}
+        onPress={() => setActiveTab('ongoing')}
+      >
+        <Text
+          style={[
+            styles.tabText,
+            activeTab === 'ongoing' && styles.activeTabText,
+          ]}
+        >
+          ONGOING
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.tabButton,
+          activeTab === 'completed' && styles.activeTabButton,
+        ]}
+        onPress={() => setActiveTab('completed')}
+      >
+        <Text
+          style={[
+            styles.tabText,
+            activeTab === 'completed' && styles.activeTabText,
+          ]}
+        >
+          COMPLETED
+        </Text>
+      </TouchableOpacity>
+    </View>
+
+    {activeTab === 'ongoing' && (
+      <ScrollView style={styles.scrollContainer}>
+        <Text style={styles.newTrialLabel}>New Trial Order!</Text>
+        <View style={styles.trialCard}>
+          <View style={styles.trialTimeBox}>
+            <Text style={styles.trialTimeText}>Trial starts from:</Text>
+            <Text style={styles.timeText}>12:30 PM</Text>
           </View>
-        )}
+
+          <View style={styles.distanceRow}>
+            <View style={{flex:1, paddingVertical:16, justifyContent:"center", alignItems:"center"}}>
+              <Text style={styles.distanceText}>Pickup: <Text style={styles.boldText}>12 KM</Text></Text>
+            </View>
+            <View style={{flex:1,paddingVertical:16, borderLeftWidth:1, borderColor:'#DBDBDB', justifyContent:"center", alignItems:"center"}}>
+              <Text style={styles.distanceText}>Drop: <Text style={styles.boldText}>12 KM</Text></Text>
+            </View>
+          </View>
+
+          
+        </View>
+        <View style={styles.orderDetailsBox}>
+            <View style={styles.orderTopRow}>
+              <Text style={styles.orderId}>Pickup From</Text>
+              <Text style={styles.orderId}>Order ID: #2345</Text>
+            </View>
+            <Text style={styles.companyName}>Elark Company</Text>
+            <Text style={styles.addressText}>
+              10W3, 10th Floor, WEST TOWER, Mani Casadona 11F, 04, Street Number 372,
+              Action Area I, IIF, Newtown, New Town, Chakpachuria, West Bengal 700156
+            </Text>
+            <View style={styles.timeAwayRow}>
+              <ClockIcon size={14} color="#737378" />
+              <Text style={styles.timeAway}>10 mins away</Text>
+            </View>
+          </View>
+        {/* Removed buttons from here - moved to bottom */}
+
       </ScrollView>
+    )}
+
+    {/* Bottom Button Container */}
+    <View style={styles.bottomButtonContainer}>
+      {isSwipeButtonEnabled ? (
+        /* Unified Swipe-to-Store Button */
+        <View style={styles.swipeToStoreContainer} {...panResponder.panHandlers}>
+          <LinearGradient
+            colors={['#121212', '#666666']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.swipeToStoreGradient}
+          >
+            <Animated.View 
+              style={[
+                styles.swipeIndicator,
+                {
+                  transform: [{ translateX: swipeAnimation }]
+                }
+              ]}
+            >
+              <View style={{ flexDirection: 'row',}}>
+                <DoubleArrowIcon size={13} color="#121212" />
+              </View>
+            </Animated.View>
+            <View style={styles.storeButtonArea}>
+              <Text style={styles.storeButtonText}>GO TO STORE</Text>
+            </View>
+          </LinearGradient>
+        </View>
+      ) : (
+        /* Disabled Button */
+        <View style={styles.disabledButtonContainer}>
+          <View style={styles.disabledButtonContent}>
+            <Text style={styles.disabledButtonText}>TRIAL WILL START IN 1:30:59 SEC</Text>
+          </View>
+        </View>
+      )}
+    </View>
     </SafeAreaView>
   );
 };
