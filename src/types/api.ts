@@ -1,18 +1,20 @@
 // API Types and Interfaces
 
 export interface ApiResponse<T = any> {
-  status: boolean;
+  success: boolean;
   data: T;
   message: string;
   credentials?: boolean;
+  statusCode?: number;
 }
 
 export interface ApiError {
-  status: false;
+  success: false;
   message: string;
   code?: string;
   details?: any;
   timestamp?: string;
+  statusCode?: number;
 }
 
 export interface PaginatedResponse<T> {
