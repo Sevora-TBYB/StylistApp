@@ -2,12 +2,9 @@ import React from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   ScrollView,
   Image,
   StatusBar,
-  Platform,
-  KeyboardAvoidingView,
   Dimensions,
 } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -33,9 +30,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     password,
     currentSlide,
     sliderData,
+    scrollViewRef,
     setEmail,
     setPassword,
     handleScroll,
+    handleScrollBeginDrag,
+    handleScrollEndDrag,
     handleLogin,
     handleNavigateToSignup,
     isLoading,
@@ -50,10 +50,13 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     return (
       <View style={loginScreenStyles.sliderContainer}>
         <ScrollView
+          ref={scrollViewRef}
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           onScroll={handleScroll}
+          onScrollBeginDrag={handleScrollBeginDrag}
+          onScrollEndDrag={handleScrollEndDrag}
           scrollEventThrottle={16}
           style={loginScreenStyles.slider}>
           {sliderData.map((item, index) => (
