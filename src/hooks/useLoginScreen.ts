@@ -62,7 +62,6 @@ export const useLoginScreen = ({ navigation }: UseLoginScreenProps) => {
             
             // Scroll to next slide
             if (scrollViewRef.current) {
-              const { SIZES } = require('../constants');
               const slideWidth = SIZES.SCREEN_WIDTH;
               scrollViewRef.current.scrollTo({
                 x: nextSlide * slideWidth,
