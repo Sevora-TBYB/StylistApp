@@ -62,6 +62,7 @@ export const useLoginScreen = ({ navigation }: UseLoginScreenProps) => {
             
             // Scroll to next slide
             if (scrollViewRef.current) {
+              const { SIZES } = require('../constants');
               const slideWidth = SIZES.SCREEN_WIDTH;
               scrollViewRef.current.scrollTo({
                 x: nextSlide * slideWidth,
@@ -107,6 +108,7 @@ export const useLoginScreen = ({ navigation }: UseLoginScreenProps) => {
             const nextSlide = (prevSlide + 1) % sliderData.length;
             
             if (scrollViewRef.current) {
+              const { SIZES } = require('../constants');
               const slideWidth = SIZES.SCREEN_WIDTH;
               scrollViewRef.current.scrollTo({
                 x: nextSlide * slideWidth,
@@ -117,7 +119,7 @@ export const useLoginScreen = ({ navigation }: UseLoginScreenProps) => {
             return nextSlide;
           });
         }
-      startAutoSlider();
+      }, 2000);
     });
 
     return () => {
