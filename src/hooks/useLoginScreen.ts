@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
 import { showSuccessToast, showErrorToast, showWarningToast } from '../utils/toastConfig';
 import { useAuthApi } from './useApi';
@@ -18,6 +18,11 @@ export const useLoginScreen = ({ navigation }: UseLoginScreenProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isUserInteracting, setIsUserInteracting] = useState(false);
+  
+  // Refs for auto slider functionality
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollViewRef = useRef<any>(null);
   
   // API hook for authentication
   const authApi = useAuthApi();
@@ -43,11 +48,106 @@ export const useLoginScreen = ({ navigation }: UseLoginScreenProps) => {
     },
   ];
 
+  // Auto slider functionality
+  useEffect(() => {
+    const startAutoSlider = () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      
+      intervalRef.current = setInterval(() => {
+        if (!isUserInteracting) {
+          setCurrentSlide((prevSlide) => {
+            const nextSlide = (prevSlide + 1) % sliderData.length;
+            
+            // Scroll to next slide
+            if (scrollViewRef.current) {
+              const { SIZES } = require('../constants');
+              const slideWidth = SIZES.SCREEN_WIDTH;
+              scrollViewRef.current.scrollTo({
+                x: nextSlide * slideWidth,
+                animated: true,
+              });
+            }
+            
+            return nextSlide;
+          });
+        }
+      }, 2000); // 2 seconds interval
+    };
+
+    startAutoSlider();
+
+    // Cleanup function
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [isUserInteracting, sliderData.length]);
+
+  // Cleanup when component unmounts or navigation changes
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('blur', () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    });
+
+    const unsubscribeFocus = navigation.addListener('focus', () => {
+      // Restart auto slider when screen comes back into focus
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      
+      intervalRef.current = setInterval(() => {
+        if (!isUserInteracting) {
+          setCurrentSlide((prevSlide) => {
+            const nextSlide = (prevSlide + 1) % sliderData.length;
+            
+            if (scrollViewRef.current) {
+              const { SIZES } = require('../constants');
+              const slideWidth = SIZES.SCREEN_WIDTH;
+              scrollViewRef.current.scrollTo({
+                x: nextSlide * slideWidth,
+                animated: true,
+              });
+            }
+            
+            return nextSlide;
+          });
+        }
+      }, 2000);
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribeFocus();
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [navigation, isUserInteracting, sliderData.length]);
+
   const handleScroll = (event: any) => {
     const { SIZES } = require('../constants');
     const slideSize = SIZES.SCREEN_WIDTH;
     const currentSlideIndex = Math.round(event.nativeEvent.contentOffset.x / slideSize);
     setCurrentSlide(currentSlideIndex);
+  };
+
+  const handleScrollBeginDrag = () => {
+    setIsUserInteracting(true);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+  };
+
+  const handleScrollEndDrag = () => {
+    setIsUserInteracting(false);
   };
 
   const validateEmail = (email: string): boolean => {
@@ -135,10 +235,15 @@ export const useLoginScreen = ({ navigation }: UseLoginScreenProps) => {
     currentSlide,
     sliderData,
     
+    // Refs
+    scrollViewRef,
+    
     // Actions
     setEmail,
     setPassword,
     handleScroll,
+    handleScrollBeginDrag,
+    handleScrollEndDrag,
     handleLogin: handleLoginWithValidation,
     handleNavigateToSignup,
     validateForm,
