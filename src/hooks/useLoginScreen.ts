@@ -118,7 +118,7 @@ export const useLoginScreen = ({ navigation }: UseLoginScreenProps) => {
             return nextSlide;
           });
         }
-      }, 2000);
+      startAutoSlider();
     });
 
     return () => {
