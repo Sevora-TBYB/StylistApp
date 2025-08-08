@@ -179,7 +179,7 @@ export const useLoginScreen = ({ navigation }: UseLoginScreenProps) => {
         password,
       });
 
-      if (result && result.status) {
+      if (result && result?.status) {
         showSuccessToast('Login Successful', result.message || 'Welcome to StylistApp!');
 
         // Navigate to ProfileCreation screen after successful login

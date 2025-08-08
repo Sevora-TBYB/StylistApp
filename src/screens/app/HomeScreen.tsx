@@ -35,6 +35,7 @@ const HomeScreen: React.FC = () => {
     getAppointmentsForDate,
     timeToMinutes,
     getAppointmentPosition,
+    isToday,
   } = useHomeScreen();
 
   // Color palette for appointment cards with matching border and background colors
@@ -162,6 +163,7 @@ const HomeScreen: React.FC = () => {
             const date = weekDates[i];
             const isSelected =
               date.toDateString() === selectedDate.toDateString();
+            const isTodayDate = isToday(date);
             const hasAppointments = getAppointmentsForDate(date).length > 0;
 
             return (
@@ -171,6 +173,7 @@ const HomeScreen: React.FC = () => {
                 style={[
                   styles.dateCircle,
                   !isSelected && styles.unselectedDateCircle,
+                  !isSelected && isTodayDate && { backgroundColor: '#F0F0F0' }, // Light gray for today's date when not selected
                 ]}
               >
                 {isSelected ? (
@@ -185,11 +188,24 @@ const HomeScreen: React.FC = () => {
                     </Text>
                   </LinearGradient>
                 ) : (
-                  <Text style={styles.dateText}>
+                  <Text style={[
+                    styles.dateText,
+                    isTodayDate && { color: '#333' } // Darker text for today's date
+                  ]}>
                     {date.getDate()}
                   </Text>
                 )}
-                {hasAppointments && <View style={styles.dot} />}
+                {/* Replace blue dot with light gray circle for today's date */}
+                {isTodayDate && !isSelected && (
+                  <View style={[styles.dot, { 
+                    backgroundColor: '#CCCCCC', 
+                    width: 6, 
+                    height: 6, 
+                    borderRadius: 3,
+                    bottom: 3
+                  }]} />
+                )}
+                {/* Keep original dot for appointments on non-today dates */}
               </TouchableOpacity>
             );
           })}

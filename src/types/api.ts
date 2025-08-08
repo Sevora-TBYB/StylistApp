@@ -1,7 +1,7 @@
 // API Types and Interfaces
 
 export interface ApiResponse<T = any> {
-  success: boolean;
+  status: boolean;
   data: T;
   message: string;
   credentials?: boolean;
@@ -41,6 +41,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   access_token: string;
   phoneVerified: boolean;
+  status:boolean,
 }
 
 export interface ProfileData {

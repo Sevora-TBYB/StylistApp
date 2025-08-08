@@ -7,6 +7,7 @@ import {
   StatusBar,
   Animated,
   PanResponder,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, RouteProp } from '@react-navigation/native';
@@ -36,6 +37,8 @@ const TrialOrdersScreen: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [countdowns, setCountdowns] = useState<Record<string, number>>({});
   const [isSwipeButtonEnabled, setIsSwipeButtonEnabled] = useState(true); // Control which button to show
+  const [isLoading, setIsLoading] = useState(false); // Loading state for swipe button
+  const [isSwipeCompleted, setIsSwipeCompleted] = useState(false); // Track if swipe is completed
 
   const appointmentData = route.params?.appointmentData;
 
@@ -45,32 +48,69 @@ const TrialOrdersScreen: React.FC = () => {
   // Handle swipe to store
   const handleSwipeToStore = () => {
     console.log('Swiped to store!');
-    // Add your store navigation logic here
+    setIsLoading(true); // Start loading
+    setIsSwipeCompleted(true); // Mark swipe as completed
+    
+    // Simulate store navigation or API call
+    setTimeout(() => {
+      setIsLoading(false); // Stop loading after navigation/API call
+      // Add your store navigation logic here
+      console.log('Navigation to store completed');
+      // Note: Keep isSwipeCompleted as true to maintain button at end position
+    }, 3000); // 3 seconds loading simulation
+  };
+
+  // Optional: Reset function for testing or if you need to reset the button
+  const resetSwipeButton = () => {
+    setIsSwipeCompleted(false);
+    setIsLoading(false);
+    swipeAnimation.setValue(0);
   };
 
   // Pan responder for swipe gesture
   const panResponder = PanResponder.create({
     onMoveShouldSetPanResponder: (evt, gestureState) => {
-      return Math.abs(gestureState.dx) > 20;
+      return !isLoading && !isSwipeCompleted && Math.abs(gestureState.dx) > 20; // Disable when loading or completed
     },
     onPanResponderMove: (evt, gestureState) => {
-      if (gestureState.dx > 0) {
-        swipeAnimation.setValue(gestureState.dx);
+      if (gestureState.dx > 0 && !isLoading && !isSwipeCompleted) {
+        // Calculate the maximum swipe distance (button width minus indicator width)
+        const maxSwipeDistance = 250; // Approximate button width minus indicator width
+        const currentDistance = Math.min(gestureState.dx, maxSwipeDistance);
+        
+        swipeAnimation.setValue(currentDistance);
+        
+        // Check if we've reached 70% of the button width
+        const seventyPercentThreshold = maxSwipeDistance * 0.7;
+        if (currentDistance >= seventyPercentThreshold) {
+          // Auto-complete the swipe when 70% threshold is reached
+          Animated.timing(swipeAnimation, {
+            toValue: maxSwipeDistance,
+            duration: 200,
+            useNativeDriver: false,
+          }).start(() => {
+            handleSwipeToStore();
+          });
+        }
       }
     },
     onPanResponderRelease: (evt, gestureState) => {
-      if (gestureState.dx > 100) {
-        // Complete swipe
+      if (isLoading || isSwipeCompleted) return; // Prevent action when loading or completed
+      
+      const maxSwipeDistance = 250;
+      const seventyPercentThreshold = maxSwipeDistance * 0.7;
+      
+      if (gestureState.dx >= seventyPercentThreshold) {
+        // Complete swipe if past 70% threshold
         Animated.timing(swipeAnimation, {
-          toValue: 1200,
-          duration: 100,
+          toValue: maxSwipeDistance,
+          duration: 200,
           useNativeDriver: false,
         }).start(() => {
           handleSwipeToStore();
-          swipeAnimation.setValue(0);
         });
       } else {
-        // Reset position
+        // Reset position if not past threshold
         Animated.spring(swipeAnimation, {
           toValue: 0,
           useNativeDriver: false,
@@ -229,20 +269,31 @@ const TrialOrdersScreen: React.FC = () => {
             end={{ x: 1, y: 1 }}
             style={styles.swipeToStoreGradient}
           >
-            <Animated.View 
-              style={[
-                styles.swipeIndicator,
-                {
-                  transform: [{ translateX: swipeAnimation }]
-                }
-              ]}
-            >
-              <View style={{ flexDirection: 'row',}}>
-                <DoubleArrowIcon size={13} color="#121212" />
-              </View>
-            </Animated.View>
+            {!isLoading && !isSwipeCompleted && (
+              <Animated.View 
+                style={[
+                  styles.swipeIndicator,
+                  {
+                    transform: [{ translateX: swipeAnimation }]
+                  }
+                ]}
+              >
+                <View style={{ flexDirection: 'row',}}>
+                  <DoubleArrowIcon size={13} color="#121212" />
+                </View>
+              </Animated.View>
+            )}
             <View style={styles.storeButtonArea}>
-              <Text style={styles.storeButtonText}>GO TO STORE</Text>
+              {isLoading ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                  <ActivityIndicator size="small" color="#fff" style={{ marginRight: 8 }} />
+                  <Text style={styles.storeButtonText}>LOADING...</Text>
+                </View>
+              ) : isSwipeCompleted ? (
+                <Text style={[styles.storeButtonText, { color: '#10B981' }]}>COMPLETED ✓</Text>
+              ) : (
+                <Text style={styles.storeButtonText}>GO TO STORE</Text>
+              )}
             </View>
           </LinearGradient>
         </View>

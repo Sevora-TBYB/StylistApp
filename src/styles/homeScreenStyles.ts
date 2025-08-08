@@ -140,6 +140,7 @@ export const homeScreenStyles = StyleSheet.create({
     position: 'relative',
     // paddingRight:10,
     // marginRight: 10,
+    backgroundColor:"#F4F5F6",
   },
   timeSlotHeader: {
     width: 70,
@@ -147,8 +148,10 @@ export const homeScreenStyles = StyleSheet.create({
     alignItems: 'flex-start',
     position: 'relative',
     paddingTop: 0,
+    backgroundColor:"#fff"
   },
   timeLabel: {
+    height:55,
     fontSize: 13,
     color: '#555',
     lineHeight: 18,
